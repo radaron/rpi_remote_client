@@ -1,14 +1,8 @@
 # Install instructions
 
-## Setting configuration
-```
-cp config.ini.sample config.ini
-```
-Edit the  relevant fields
-
 ## Run install script
 ```
-./install.sh
+curl -sSL https://gist.githubusercontent.com/radaron/4f844cca0ba09c8521cf13c29fbddfe1/raw | bash
 ```
 
 # Start/Restart/Stop service
