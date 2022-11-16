@@ -1,0 +1,5 @@
+[connection]
+
+host_address = http://localhost:8080
+period_time_sec = 30
+client_name = test_client

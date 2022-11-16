@@ -34,8 +34,7 @@ class RpiClient:
         self.logger.info("Starting rpi-remote client...")
         while True:
             try:
-                data = self.get_order()
-                if data:
+                if data := self.get_order():
                     data['logger'] = self.logger
                     forwarder = ClientForwarder(**data)
                     forwarder.start()
