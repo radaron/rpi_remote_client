@@ -2,17 +2,18 @@
 
 ## Run install script
 ```
-curl -sSL https://gist.githubusercontent.com/radaron/4f844cca0ba09c8521cf13c29fbddfe1/raw > install.sh
-chmod +x install.sh
-./install.sh
-rm install.sh
+curl -sSL https://gist.githubusercontent.com/radaron/4f844cca0ba09c8521cf13c29fbddfe1/raw | bash
 ```
 
-# Start/Restart/Stop service
+## Edit config
+```
+cp config.ini.sample config.ini
+```
+Edit the relevan fields.
+
+## Start service
 ```
 sudo systemctl start rpi_remote
-sudo systemctl restart rpi_remote
-sudo systemctl stop rpi_remote
 ```
 
 # Check logs
