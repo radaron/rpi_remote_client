@@ -4,7 +4,7 @@ import requests
 from requests.exceptions import ConnectionError
 import configparser
 import logging.handlers
-from forward_client import ClientForwarder
+from forward import ClientForwarder
 
 class RpiClient:
 

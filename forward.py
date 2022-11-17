@@ -6,19 +6,19 @@ import select
 
 class ClientForwarder:
 
-    SSH_PORT = 22
-
-    def __init__(self, host, port, username, passwd, logger):
+    def __init__(self, host, port, username, passwd, from_port, to_port, logger):
         self.host = host
         self.port = port
         self.username = username
         self.password = passwd
+        self.from_port = from_port
+        self.to_port = to_port
         self.logger = logger
 
     def handler(self, chan):
         remote_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            remote_socket.connect((self.host, self.SSH_PORT))
+            remote_socket.connect((self.host, self.from_port))
         except Exception as e:
             self.logger.error(e)
             return
@@ -42,7 +42,7 @@ class ClientForwarder:
 
     def reverse_port_forward(self, client_transport):
         try:
-            client_transport.request_port_forward("", self.port+1)
+            client_transport.request_port_forward("", self.to_port)
             client_transport.open_session()
         except paramiko.SSHException as err:
             self.logger.error(err)
@@ -52,7 +52,7 @@ class ClientForwarder:
             if chan := client_transport.accept(60):
                 self.handler(chan)
         finally:
-            client_transport.cancel_port_forward("", self.port+1)
+            client_transport.cancel_port_forward("", self.to_port)
             client_transport.close()
 
     def start(self):
