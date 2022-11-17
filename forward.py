@@ -18,7 +18,7 @@ class ClientForwarder:
     def handler(self, chan):
         remote_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            remote_socket.connect((self.host, self.from_port))
+            remote_socket.connect(("127.0.0.1", self.from_port))
         except Exception as e:
             self.logger.error(e)
             return
