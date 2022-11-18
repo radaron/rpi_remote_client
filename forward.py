@@ -17,11 +17,7 @@ class ClientForwarder:
 
     def handler(self, chan):
         remote_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            remote_socket.connect(("127.0.0.1", self.from_port))
-        except Exception as e:
-            self.logger.error(e)
-            return
+        remote_socket.connect(("127.0.0.1", self.from_port))
 
         while True:
             r, _, _ = select.select([remote_socket, chan], [], [])
@@ -31,8 +27,6 @@ class ClientForwarder:
                 else:
                     break
             if chan in r:
-                if chan.closed:
-                    break
                 if data := chan.recv(1024):
                     remote_socket.send(data)
                 else:
@@ -49,7 +43,7 @@ class ClientForwarder:
             return
 
         try:
-            if chan := client_transport.accept(60):
+            while chan := client_transport.accept(60):
                 self.handler(chan)
         finally:
             client_transport.cancel_port_forward("", self.to_port)
@@ -61,6 +55,7 @@ class ClientForwarder:
         try:
             self.logger.info("Connecting to %s:%d", self.host, self.port)
             client.connect(self.host, port=self.port, username=self.username, password=self.password)
+            self.reverse_port_forward(client.get_transport())
         except NoValidConnectionsError:
             self.logger.info("Unable to connect to: %s:%s", self.host, self.port)
             return
@@ -69,5 +64,5 @@ class ClientForwarder:
             return
         except Exception as e:
             self.logger.error(e)
-            return
-        self.reverse_port_forward(client.get_transport())
+        finally:
+            client.close()
