@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rpi-remote"
-version = "0.1.1"
+version = "0.1.2"
 description = "Rpi remote client"
 authors = ["Radics Aron <radics.aron.jozsef@gmail.com>"]
 license = "MIT"
