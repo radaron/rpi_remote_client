@@ -1,5 +1,4 @@
 .venv
 .vscode
 *.code-workspace
-config.ini
 *.pyc
