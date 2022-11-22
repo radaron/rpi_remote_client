@@ -6,14 +6,11 @@ curl -sSL https://gist.githubusercontent.com/radaron/4f844cca0ba09c8521cf13c29fb
 ```
 
 ## Edit config
-```
-cp config.ini.sample config.ini
-```
-Edit the relevan fields.
+Config file path: *~/.config/rpi_remote/config.ini*
 
 ## Start service
 ```
-sudo systemctl start rpi_remote
+sudo systemctl start rpi-remote
 ```
 
 # Check logs

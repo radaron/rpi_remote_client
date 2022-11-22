@@ -9,7 +9,7 @@ from .forward import ClientForwarder
 
 class RpiRemoteClient:
 
-    CONFIG_FOLDER_PATH = os.path.join(os.path.expanduser('~'), ".config", "rpi_remote_client")
+    CONFIG_FOLDER_PATH = os.path.join(os.path.expanduser('~'), ".config", "rpi_remote")
     CONFIG_PATH = os.path.join(CONFIG_FOLDER_PATH, "config.ini")
     DEFAULT_CONFIG = {
         "connection": {
