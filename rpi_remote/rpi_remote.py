@@ -4,9 +4,21 @@ import requests
 from requests.exceptions import ConnectionError
 import configparser
 import logging.handlers
-from forward import ClientForwarder
+from .forward import ClientForwarder
 
-class RpiClient:
+
+CONFIG_FOLDER_PATH = os.path.join(os.path.expanduser('~'), ".config", "rpi_remote_client")
+CONFIG_PATH = os.path.join(CONFIG_FOLDER_PATH, "config.ini")
+DEFAULT_CONFIG = {
+    "connection": {
+        "host_address": "http://localhost:8080",
+        "period_time_sec": "30",
+        "client_name": "test_client",
+    }
+}
+
+
+class RpiRemoteClient:
 
     def __init__(self):
         self.logger = self.init_logger()
@@ -22,8 +34,20 @@ class RpiClient:
 
     def load_config(self):
         config = configparser.ConfigParser()
-        config_path = os.path.join(os.path.dirname(__file__), 'config.ini')
-        config.read(config_path)
+        if config.read(CONFIG_PATH):
+            return config
+        return self.create_config()
+
+    def create_config(self):
+        if not os.path.exists(CONFIG_FOLDER_PATH):
+            os.makedirs(CONFIG_FOLDER_PATH)
+        config = configparser.ConfigParser()
+        for section in DEFAULT_CONFIG:
+            config[section] = {}
+            for k, v in DEFAULT_CONFIG[section].items():
+                config[section][k] = v
+        with open(CONFIG_PATH, 'w') as f:
+            config.write(f)
         return config
 
     def get_order(self):
@@ -40,13 +64,14 @@ class RpiClient:
                     data['logger'] = self.logger
                     forwarder = ClientForwarder(**data)
                     forwarder.start()
+                time.sleep(int(self.config['connection']['period_time_sec']))
             except ConnectionError as e:
                 self.logger.warning("Cannot connect to host: '%s'", e.request.url)
             except Exception as e:
                 self.logger.error(e)
-            finally:
-                time.sleep(int(self.config['connection']['period_time_sec']))
+            except KeyboardInterrupt:
+                return
 
-if __name__ == "__main__":
-    client = RpiClient()
+def main():
+    client = RpiRemoteClient()
     client.run()
