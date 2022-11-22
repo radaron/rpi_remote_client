@@ -7,18 +7,17 @@ import logging.handlers
 from .forward import ClientForwarder
 
 
-CONFIG_FOLDER_PATH = os.path.join(os.path.expanduser('~'), ".config", "rpi_remote_client")
-CONFIG_PATH = os.path.join(CONFIG_FOLDER_PATH, "config.ini")
-DEFAULT_CONFIG = {
-    "connection": {
-        "host_address": "http://localhost:8080",
-        "period_time_sec": "30",
-        "client_name": "test_client",
-    }
-}
-
-
 class RpiRemoteClient:
+
+    CONFIG_FOLDER_PATH = os.path.join(os.path.expanduser('~'), ".config", "rpi_remote_client")
+    CONFIG_PATH = os.path.join(CONFIG_FOLDER_PATH, "config.ini")
+    DEFAULT_CONFIG = {
+        "connection": {
+            "host_address": "http://localhost:8080",
+            "period_time_sec": "30",
+            "client_name": "test_client",
+        }
+    }
 
     def __init__(self):
         self.logger = self.init_logger()
@@ -34,19 +33,19 @@ class RpiRemoteClient:
 
     def load_config(self):
         config = configparser.ConfigParser()
-        if config.read(CONFIG_PATH):
+        if config.read(self.CONFIG_PATH):
             return config
         return self.create_config()
 
     def create_config(self):
-        if not os.path.exists(CONFIG_FOLDER_PATH):
-            os.makedirs(CONFIG_FOLDER_PATH)
+        if not os.path.exists(self.CONFIG_FOLDER_PATH):
+            os.makedirs(self.CONFIG_FOLDER_PATH)
         config = configparser.ConfigParser()
-        for section in DEFAULT_CONFIG:
+        for section in self.DEFAULT_CONFIG:
             config[section] = {}
-            for k, v in DEFAULT_CONFIG[section].items():
+            for k, v in self.DEFAULT_CONFIG[section].items():
                 config[section][k] = v
-        with open(CONFIG_PATH, 'w') as f:
+        with open(self.CONFIG_PATH, 'w') as f:
             config.write(f)
         return config
 
