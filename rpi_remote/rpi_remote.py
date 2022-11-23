@@ -63,13 +63,12 @@ class RpiRemoteClient:
                     data['logger'] = self.logger
                     forwarder = ClientForwarder(**data)
                     forwarder.start()
-                time.sleep(int(self.config['connection']['period_time_sec']))
             except ConnectionError as e:
                 self.logger.warning("Cannot connect to host: '%s'", e.request.url)
             except Exception as e:
                 self.logger.error(e)
-            except KeyboardInterrupt:
-                return
+            finally:
+                time.sleep(int(self.config['connection']['period_time_sec']))
 
 def main():
     client = RpiRemoteClient()
