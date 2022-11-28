@@ -41,5 +41,5 @@ Config file path: *~/.config/rpi_remote/config.ini*
 
 ## Check logs
 ```
-journalctl -f | grep rpi-remote
+journalctl -fu rpi-remote
 ```
