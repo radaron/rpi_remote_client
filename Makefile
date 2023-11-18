@@ -31,4 +31,4 @@ build:
 	@$(ACTIVATE) && python -m build
 
 publish:
-	@$(ACTIVATE) && python -m twine upload dist/*
+	@$(ACTIVATE) && python -m twine upload --skip-existing dist/*
