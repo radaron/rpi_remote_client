@@ -19,7 +19,7 @@ jobs:
     - name: Install dependencies
       run: |
         make install-dev
-    - name: Build and publish python poetry package
+    - name: Build and publish python package
       run: |
         make build
         make publish
