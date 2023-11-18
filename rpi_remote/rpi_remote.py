@@ -50,7 +50,7 @@ class RpiRemoteClient:
         return config
 
     def get_order(self):
-        url = f"{self.config['connection']['host_address']}/rpi/order"
+        url = f"{self.config['connection']['host_address']}/rpi/api/order"
         client_name = self.config['connection']['client_name']
         request = requests.get(url, headers={'name': client_name}, timeout=5)
         return request.json()
