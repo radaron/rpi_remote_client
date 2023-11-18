@@ -15,11 +15,14 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.8'
-    - name: Poetry Install
-      uses: knowsuchagency/poetry-install@v2
+        python-version: '3.9'
+    - name: Install dependencies
+      run: |
+        make install-dev
     - name: Build and publish python poetry package
       run: |
-        poetry publish --build --skip-existing
+        make build
+        make publish
       env:
-        POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
