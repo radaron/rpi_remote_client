@@ -21,6 +21,7 @@ install-dev: virtualenv reqs-dev
 lint:
 	@$(ACTIVATE) && pylint rpi_remote/
 
+.PHONY: build
 build:
 	@$(ACTIVATE) && python -m build
 
