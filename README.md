@@ -5,7 +5,6 @@
 ### Prerequisites
 * rust
 * libffi
-* poetry
 * gcc
 * openssl
 
