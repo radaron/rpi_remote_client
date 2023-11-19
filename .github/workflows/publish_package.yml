@@ -19,6 +19,9 @@ jobs:
     - name: Install dependencies
       run: |
         make install-dev
+    - name: Lint code
+      run: |
+        make lint
     - name: Build and publish python package
       run: |
         make build
