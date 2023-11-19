@@ -1,9 +1,9 @@
 import time
 import os
-import requests
-from requests.exceptions import ConnectionError
 import configparser
 import logging.handlers
+import requests
+from requests.exceptions import ConnectionError # pylint: disable=redefined-builtin
 from .forward import ClientForwarder
 
 
@@ -41,11 +41,11 @@ class RpiRemoteClient:
         if not os.path.exists(self.CONFIG_FOLDER_PATH):
             os.makedirs(self.CONFIG_FOLDER_PATH)
         config = configparser.ConfigParser()
-        for section in self.DEFAULT_CONFIG:
+        for section, configs in self.DEFAULT_CONFIG.items():
             config[section] = {}
-            for k, v in self.DEFAULT_CONFIG[section].items():
-                config[section][k] = v
-        with open(self.CONFIG_PATH, 'w') as f:
+            for config_key, config_value in configs.items():
+                config[section][config_key] = config_value
+        with open(self.CONFIG_PATH, 'w', encoding='utf-8') as f:
             config.write(f)
         return config
 
@@ -65,7 +65,7 @@ class RpiRemoteClient:
                     forwarder.start()
             except ConnectionError as e:
                 self.logger.warning("Cannot connect to host: '%s'", e.request.url)
-            except Exception as e:
+            except Exception as e: # pylint: disable=broad-except
                 self.logger.error(e)
             finally:
                 time.sleep(int(self.config['connection']['period_time_sec']))

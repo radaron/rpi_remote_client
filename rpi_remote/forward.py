@@ -1,12 +1,12 @@
 import socket
+import select
 import paramiko
 from paramiko.ssh_exception import NoValidConnectionsError, AuthenticationException
-import select
 
 
 class ClientForwarder:
 
-    def __init__(self, host, port, username, passwd, from_port, to_port, logger):
+    def __init__(self, host, port, username, passwd, from_port, to_port, logger): # pylint: disable=too-many-arguments
         self.host = host
         self.port = port
         self.username = username
@@ -54,7 +54,8 @@ class ClientForwarder:
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
             self.logger.info("Connecting to %s:%d", self.host, self.port)
-            client.connect(self.host, port=self.port, username=self.username, password=self.password)
+            client.connect(self.host, port=self.port,
+                           username=self.username, password=self.password)
             self.reverse_port_forward(client.get_transport())
         except NoValidConnectionsError:
             self.logger.info("Unable to connect to: %s:%s", self.host, self.port)
@@ -62,7 +63,7 @@ class ClientForwarder:
         except AuthenticationException:
             self.logger.info("Authentication failed to: %s:%s", self.host, self.port)
             return
-        except Exception as e:
+        except Exception as e: # pylint: disable=broad-except
             self.logger.error(e)
         finally:
             client.close()

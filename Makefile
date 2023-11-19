@@ -6,26 +6,20 @@ ACTIVATE = . .venv/bin/activate
 virtualenv: .venv
 
 pip: virtualenv
-	@$(ACTIVATE) && pip install --upgrade pip pip-tools
+	@$(ACTIVATE) && pip install --upgrade pip
 
 reqs-prod: pip
-	@$(ACTIVATE) && pip install --no-deps -r requirements.txt
+	@$(ACTIVATE) && pip install .
 
 reqs-dev: pip
-	@$(ACTIVATE) && pip install --no-deps -r requirements-dev.txt
+	@$(ACTIVATE) && pip install .[dev]
 
 install: virtualenv reqs-prod
 
 install-dev: virtualenv reqs-dev
 
-lint: reqs-dev
-	@$(ACTIVATE) && PYTHONPATH=. pylint rpi_remote_server
-
-lock: pip
-	@$(ACTIVATE) && pip-compile --generate-hashes --no-emit-index-url --output-file=requirements.txt \
-		--resolver=backtracking pyproject.toml
-	@$(ACTIVATE) && pip-compile --generate-hashes --no-emit-index-url --output-file=requirements-dev.txt \
-		--resolver=backtracking --extra dev pyproject.toml
+lint:
+	@$(ACTIVATE) && pylint rpi_remote/
 
 build:
 	@$(ACTIVATE) && python -m build

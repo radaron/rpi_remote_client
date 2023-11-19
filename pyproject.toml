@@ -17,10 +17,14 @@ dependencies = [
     "requests==2.28.1",
 ]
 
+[project.scripts]
+rpi-remote = "rpi_remote.rpi_remote:main"
+
 [project.optional-dependencies]
 dev = [
     "build",
     "twine",
+    "pylint"
 ]
 
 [project.urls]
