@@ -1,3 +1,5 @@
+![PyPI - Version](https://img.shields.io/pypi/v/rpi-remote?style=for-the-badge&logo=python&logoColor=yellow&link=https%3A%2F%2Fpypi.org%2Fproject%2Frpi-remote%2F)
+
 # Rpi Remote client
 
 ## Installation
