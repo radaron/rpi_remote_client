@@ -20,10 +20,10 @@ class RpiRemoteClient:
     }
 
     def __init__(self):
-        self.logger = self.init_logger()
-        self.config = self.load_config()
+        self._logger = self._init_logger()
+        self._config = self._load_config()
 
-    def init_logger(self):
+    def _init_logger(self):
         syslog = logging.handlers.SysLogHandler(address="/dev/log")
         syslog.setFormatter(logging.Formatter('rpi-remote %(name)s: %(levelname)s %(message)s'))
         logger = logging.getLogger("rpi-remote")
@@ -31,13 +31,13 @@ class RpiRemoteClient:
         logger.setLevel(logging.INFO)
         return logger
 
-    def load_config(self):
+    def _load_config(self):
         config = configparser.ConfigParser()
         if config.read(self.CONFIG_PATH):
             return config
-        return self.create_config()
+        return self._create_config()
 
-    def create_config(self):
+    def _create_config(self):
         if not os.path.exists(self.CONFIG_FOLDER_PATH):
             os.makedirs(self.CONFIG_FOLDER_PATH)
         config = configparser.ConfigParser()
@@ -49,26 +49,25 @@ class RpiRemoteClient:
             config.write(f)
         return config
 
-    def get_order(self):
-        url = f"{self.config['connection']['host_address']}/rpi/api/order"
-        client_name = self.config['connection']['client_name']
+    def _get_order(self):
+        url = f"{self._config['connection']['host_address']}/rpi/api/order"
+        client_name = self._config['connection']['client_name']
         request = requests.get(url, headers={'name': client_name}, timeout=5)
         return request.json()
 
     def run(self):
-        self.logger.info("Starting rpi-remote client...")
+        self._logger.info("Starting rpi-remote client...")
         while True:
             try:
-                if data := self.get_order():
-                    data['logger'] = self.logger
-                    forwarder = ClientForwarder(**data)
+                if data := self._get_order():
+                    forwarder = ClientForwarder(**data, logger=self._logger)
                     forwarder.start()
             except ConnectionError as e:
-                self.logger.warning("Cannot connect to host: '%s'", e.request.url)
+                self._logger.warning("Cannot connect to host: '%s'", e.request.url)
             except Exception as e: # pylint: disable=broad-except
-                self.logger.error(e)
+                self._logger.error(e)
             finally:
-                time.sleep(int(self.config['connection']['period_time_sec']))
+                time.sleep(int(self._config['connection']['period_time_sec']))
 
 def main():
     client = RpiRemoteClient()
