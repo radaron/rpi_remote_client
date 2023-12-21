@@ -5,10 +5,10 @@
 ## Installation
 
 ### Prerequisites
-* rust
-* libffi
-* gcc
-* openssl
+```
+sudo apt install openssl build-essential libffi-dev gcc pkg-config python3-dev libssl-dev
+```
+Install rust: https://www.rust-lang.org/tools/install
 
 ### Install package
 ```
@@ -28,6 +28,7 @@ Environment="LC_ALL=C.UTF-8"
 Environment="LANG=C.UTF-8"
 ExecStart=${HOME}/.local/bin/rpi-remote
 Restart=on-failure
+RestartSec=3
 [Install]
 WantedBy=multi-user.target" | sudo tee /etc/systemd/system/rpi-remote.service
 ```

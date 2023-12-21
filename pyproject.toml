@@ -1,6 +1,6 @@
 [project]
 name = "rpi-remote"
-version = "1.0.3"
+version = "1.1.0"
 authors = [
   { name="Aron Radics", email="radics.aron.jozsef@gmail.com" },
 ]
@@ -13,8 +13,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "paramiko==2.12.0",
-    "requests==2.28.1",
+    "paramiko>=2.12.0",
+    "requests>=2.28.1",
+    "psutil>=5.8.0",
 ]
 
 [project.scripts]
