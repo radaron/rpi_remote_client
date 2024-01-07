@@ -39,7 +39,7 @@ sudo systemctl start rpi-remote.service
 ```
 
 ## Edit config
-Config file path: *~/.config/rpi_remote/config.ini*
+Config file path: ```~/.config/rpi_remote/config.ini```
 
 ## Check logs
 ```
