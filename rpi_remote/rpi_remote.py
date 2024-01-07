@@ -72,7 +72,7 @@ class RpiRemoteClient: # pylint: disable=too-few-public-methods
             'temperature': metrics['temperature'],
         }
         headers = {'Content-type': 'application/json'}
-        resp = requests.put(url, data=json.dumps(data), headers=headers, timeout=5)
+        requests.put(url, data=json.dumps(data), headers=headers, timeout=5)
 
     def _collect_metrics(self):
         uptime_sec = time.time() - psutil.boot_time()
