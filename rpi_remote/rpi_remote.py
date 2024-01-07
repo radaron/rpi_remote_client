@@ -2,6 +2,7 @@ import time
 import os
 import json
 import configparser
+import statistics
 import logging.handlers
 import requests
 import psutil
@@ -81,11 +82,27 @@ class RpiRemoteClient: # pylint: disable=too-few-public-methods
         return {
             'uptime_hous': int(uptime_sec/3600),
             'mem_percent': int(psutil.virtual_memory().percent),
-            'cpu_percent': int([x / psutil.cpu_count() * 100 
-                                for x in psutil.getloadavg()][1]), # 5 min load average
+            'cpu_percent': self._get_cpu_avarage_load(),
             'disk_usage': int(psutil.disk_usage(disk_path).percent),
-            'temperature': int(psutil.sensors_temperatures()['cpu_thermal'][0].current)
+            'temperature': self._get_cpu_temperature(),
         }
+
+    @staticmethod
+    def _get_cpu_temperature():
+        try:
+            sensor_data = psutil.sensors_temperatures()
+            return int([statistics.mean([i.current for i in value])
+                        for key, value in sensor_data.items() if key.startswith('cpu')][0])
+        except (IndexError, AttributeError):
+            return -1
+
+    @staticmethod
+    def _get_cpu_avarage_load():
+        try:
+            return int([x / psutil.cpu_count() * 100
+                        for x in psutil.getloadavg()][1])  # 5 min load average
+        except IndexError:
+            return -1
 
     def run(self):
         self._logger.info("Starting rpi-remote client...")
