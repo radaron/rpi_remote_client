@@ -41,6 +41,18 @@ sudo systemctl start rpi-remote.service
 ## Edit config
 Config file path: ```~/.config/rpi_remote/config.ini```
 
+This file automatically generated when the service starts. See the example below.
+``` ini
+[connection]
+server_host = localhost
+server_port = 80 # 443 in case of https
+ssl = true # true/false
+local_port = 22
+period_time_sec = 30
+client_name = test_client
+disk_path = /media/HDD
+```
+
 ## Check logs
 ```
 journalctl -fu rpi-remote

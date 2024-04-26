@@ -1,69 +1,41 @@
 import socket
 import select
-import paramiko
-from paramiko.ssh_exception import NoValidConnectionsError, AuthenticationException
 
 
-class ClientForwarder:
+class ClientForwarder:  # pylint: disable=too-few-public-methods
 
-    def __init__(self, host, port, username, passwd, from_port, to_port, logger): # pylint: disable=too-many-arguments
-        self.host = host
-        self.port = port
-        self.username = username
-        self.password = passwd
-        self.from_port = from_port
-        self.to_port = to_port
-        self.logger = logger
+    def __init__(self, host, port, local_port, local_host='127.0.0.1'):
+        self._host = host
+        self._port = int(port)
+        self._local_host = local_host
+        self._local_port = int(local_port)
 
-    def handler(self, chan):
-        remote_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        remote_socket.connect(("127.0.0.1", self.from_port))
-
+    def _handler(self, source, target):
         while True:
-            r, _, _ = select.select([remote_socket, chan], [], [])
-            if remote_socket in r:
-                if data := remote_socket.recv(1024):
-                    chan.send(data)
-                else:
+            rlist, _, _ = select.select([source, target], [], [])
+            if source in rlist:
+                data = source.recv(4096)
+                if len(data) == 0:
                     break
-            if chan in r:
-                if data := chan.recv(1024):
-                    remote_socket.send(data)
-                else:
+                target.sendall(data)
+            if target in rlist:
+                data = target.recv(4096)
+                if len(data) == 0:
                     break
-        chan.close()
-        remote_socket.close()
+                source.sendall(data)
 
-    def reverse_port_forward(self, client_transport):
-        try:
-            client_transport.request_port_forward("", self.to_port)
-            client_transport.open_session()
-        except paramiko.SSHException as err:
-            self.logger.error(err)
-            return
-
-        try:
-            while chan := client_transport.accept(60):
-                self.handler(chan)
-        finally:
-            client_transport.cancel_port_forward("", self.to_port)
-            client_transport.close()
+    @staticmethod
+    def _create_socket(host, port):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((host, port))
+        return sock
 
     def start(self):
-        client = paramiko.SSHClient()
-        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
-            self.logger.info("Connecting to %s:%d", self.host, self.port)
-            client.connect(self.host, port=self.port,
-                           username=self.username, password=self.password)
-            self.reverse_port_forward(client.get_transport())
-        except NoValidConnectionsError:
-            self.logger.info("Unable to connect to: %s:%s", self.host, self.port)
-            return
-        except AuthenticationException:
-            self.logger.info("Authentication failed to: %s:%s", self.host, self.port)
-            return
-        except Exception as e: # pylint: disable=broad-except
-            self.logger.error(e)
+            source_sock = self._create_socket(self._local_host, self._local_port)
+            target_sock = self._create_socket(self._host, self._port)
+
+            self._handler(source_sock, target_sock)
         finally:
-            client.close()
+            source_sock.close()
+            target_sock.close()

@@ -6,17 +6,20 @@ import statistics
 import logging.handlers
 import requests
 import psutil
-from requests.exceptions import ConnectionError # pylint: disable=redefined-builtin
+from requests.exceptions import ConnectionError  # pylint: disable=redefined-builtin
 from .forward import ClientForwarder
 
 
-class RpiRemoteClient: # pylint: disable=too-few-public-methods
+class RpiRemoteClient:  # pylint: disable=too-few-public-methods
 
     CONFIG_FOLDER_PATH = os.path.join(os.path.expanduser('~'), ".config", "rpi_remote")
     CONFIG_PATH = os.path.join(CONFIG_FOLDER_PATH, "config.ini")
     DEFAULT_CONFIG = {
         "connection": {
-            "host_address": "http://localhost:8080",
+            "server_host": "localhost",
+            "server_port": "443",
+            "ssl": "true",
+            "local_port": "22",
             "period_time_sec": "30",
             "client_name": "test_client",
             "disk_path": "/media/HDD",
@@ -53,15 +56,27 @@ class RpiRemoteClient: # pylint: disable=too-few-public-methods
             config.write(f)
         return config
 
+    @property
+    def _schema(self):
+        return "https://" if self._config['connection']['ssl'] == 'true' else "http://"
+
+    @property
+    def _server_host(self):
+        return self._config['connection']['server_host']
+
+    @property
+    def _server_port(self):
+        return self._config['connection']['server_port']
+
     def _get_order(self):
-        url = f"{self._config['connection']['host_address']}/rpi/api/order"
+        url = f"{self._schema}{self._server_host}:{self._server_port}/rpi/api/order"
         client_name = self._config['connection']['client_name']
         request = requests.get(url, headers={'name': client_name}, timeout=5)
         return request.json()
 
     def _send_metrics(self):
         metrics = self._collect_metrics()
-        url = f"{self._config['connection']['host_address']}/rpi/api/metric"
+        url = f"{self._schema}{self._server_host}:{self._server_port}/rpi/api/metric"
         client_name = self._config['connection']['client_name']
         data = {
             'name': client_name,
@@ -79,7 +94,7 @@ class RpiRemoteClient: # pylint: disable=too-few-public-methods
         disk_path = self._config['connection']['disk_path'] if \
             os.path.exists(self._config['connection']['disk_path']) else '/'
         return {
-            'uptime_hous': int(uptime_sec/3600),
+            'uptime_hous': int(uptime_sec / 3600),
             'mem_percent': int(psutil.virtual_memory().percent),
             'cpu_percent': self._get_cpu_avarage_load(),
             'disk_usage': int(psutil.disk_usage(disk_path).percent),
@@ -108,15 +123,18 @@ class RpiRemoteClient: # pylint: disable=too-few-public-methods
         while True:
             try:
                 if data := self._get_order():
-                    forwarder = ClientForwarder(**data, logger=self._logger)
+                    forwarder = ClientForwarder(host=self._server_host, port=data['port'],
+                                                local_port=self._config['connection']['local_port'])
                     forwarder.start()
+                    self._get_order()
                 self._send_metrics()
             except ConnectionError as e:
                 self._logger.warning("Cannot connect to host: '%s'", e.request.url)
-            except Exception as e: # pylint: disable=broad-except
-                self._logger.error(e)
+            except Exception:  # pylint: disable=broad-except
+                self._logger.exception("Error occurred")
             finally:
                 time.sleep(int(self._config['connection']['period_time_sec']))
+
 
 def main():
     client = RpiRemoteClient()
