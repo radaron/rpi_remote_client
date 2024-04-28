@@ -4,19 +4,13 @@
 
 ## Installation
 
-### Prerequisites
-```
-sudo apt install build-essential libffi-dev gcc pkg-config python3-dev python3-pip libssl-dev cargo openssl
-```
-Install rust: https://www.rust-lang.org/tools/install
-
-### Install package
-```
+### Install/Upgrade package
+``` shell
 python3 -m pip install --upgrade rpi-remote --user
 ```
 
 ### Create service
-```
+``` shell
 echo "[Unit]
 Description=rpi_remote service
 After=multi-user.target
@@ -32,16 +26,28 @@ RestartSec=3
 [Install]
 WantedBy=multi-user.target" | sudo tee /etc/systemd/system/rpi-remote.service
 ```
-```
+``` shell
 sudo systemctl daemon-reload
 sudo systemctl enable rpi-remote.service
 sudo systemctl start rpi-remote.service
 ```
 
-## Edit config
+## Configuartion
 Config file path: ```~/.config/rpi_remote/config.ini```
 
-## Check logs
+This file automatically generated when the service starts. See the example below.
+``` ini
+[connection]
+server_host = localhost
+server_port = 80 # 443 in case of https
+ssl = true # true/false
+local_port = 22
+period_time_sec = 30
+client_name = test_client
+disk_path = /media/HDD
 ```
+
+## Check logs
+``` shell
 journalctl -fu rpi-remote
 ```
