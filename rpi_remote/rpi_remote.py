@@ -19,7 +19,8 @@ class RpiRemoteClient:  # pylint: disable=too-few-public-methods
             "server_host": "localhost",
             "server_port": "443",
             "ssl": "true",
-            "local_port": "22",
+            "ssh_username": "root",
+            "ssh_port": "22",
             "period_time_sec": "30",
             "client_name": "test_client",
             "disk_path": "/media/HDD",
@@ -69,9 +70,14 @@ class RpiRemoteClient:  # pylint: disable=too-few-public-methods
         return self._config['connection']['server_port']
 
     def _get_order(self):
-        url = f"{self._schema}{self._server_host}:{self._server_port}/rpi/api/order"
-        client_name = self._config['connection']['client_name']
-        request = requests.get(url, headers={'name': client_name}, timeout=5)
+        request = requests.get(
+            url=f"{self._schema}{self._server_host}:{self._server_port}/rpi/api/order",
+            headers={
+                'name': self._config['connection']['client_name'],
+                'username': self._config['connection']['ssh_username']
+            },
+            timeout=5
+        )
         return request.json()
 
     def _send_metrics(self):
@@ -124,7 +130,7 @@ class RpiRemoteClient:  # pylint: disable=too-few-public-methods
             try:
                 if data := self._get_order():
                     forwarder = ClientForwarder(host=self._server_host, port=data['port'],
-                                                local_port=self._config['connection']['local_port'])
+                                                local_port=self._config['connection']['ssh_port'])
                     forwarder.start()
                     self._get_order()
                 self._send_metrics()
