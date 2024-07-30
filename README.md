@@ -41,7 +41,8 @@ This file automatically generated when the service starts. See the example below
 server_host = localhost
 server_port = 80 # 443 in case of https
 ssl = true # true/false
-local_port = 22
+ssh_username = root
+ssh_port = 22
 period_time_sec = 30
 client_name = test_client
 disk_path = /media/HDD
