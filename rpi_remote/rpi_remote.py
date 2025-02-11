@@ -71,7 +71,7 @@ class RpiRemoteClient:  # pylint: disable=too-few-public-methods
 
     def _get_order(self):
         request = requests.get(
-            url=f"{self._schema}{self._server_host}:{self._server_port}/rpi/api/order",
+            url=f"{self._schema}{self._server_host}:{self._server_port}/api/order",
             headers={
                 'name': self._config['connection']['client_name'],
                 'username': self._config['connection']['ssh_username']
@@ -82,7 +82,7 @@ class RpiRemoteClient:  # pylint: disable=too-few-public-methods
 
     def _send_metrics(self):
         metrics = self._collect_metrics()
-        url = f"{self._schema}{self._server_host}:{self._server_port}/rpi/api/metric"
+        url = f"{self._schema}{self._server_host}:{self._server_port}/api/metric"
         client_name = self._config['connection']['client_name']
         data = {
             'name': client_name,
